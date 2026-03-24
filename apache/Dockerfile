@@ -1,9 +1,9 @@
-ARG PHP_VERSION=8.2.29
-FROM php:${PHP_VERSION}-apache-bullseye
+ARG PHP_VERSION=8.5.4
+FROM php:${PHP_VERSION}-apache-bookworm
 
 LABEL org.opencontainers.image.authors="Roni Kumar Saha <roni.csed@gmail.com>"
 
-ENV APACHE_DOCUMENT_ROOT /var/www/public
+ENV APACHE_DOCUMENT_ROOT=/var/www/public
 
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
@@ -13,11 +13,17 @@ ENV LD_LIBRARY_PATH=/usr/lib/instantclient
 #install exetentions and dependencies
 RUN set -eux; \
 	\
-	sed -i'.bak' 's/$/ contrib/' /etc/apt/sources.list; \
+	export DEBIAN_FRONTEND=noninteractive; \
+	if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+		sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources; \
+	elif [ -f /etc/apt/sources.list ]; then \
+		sed -i'.bak' 's/ main$/ main contrib non-free/' /etc/apt/sources.list; \
+	fi; \
+	echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections; \
 	apt-get update && apt-get -y upgrade; \
 	apt-get install -y libaio1 wget unzip \
 		libicu-dev \
-    libzip-dev \
+        libzip-dev \
         libyaml-dev \
         gettext graphviz \
         libmagickwand-dev\
@@ -25,7 +31,6 @@ RUN set -eux; \
         libpq-dev  \
         imagemagick \
         libxslt1-dev \
-        \
         fontconfig \
         libfreetype6 \
         libjpeg62-turbo \
@@ -52,7 +57,6 @@ RUN set -eux; \
         bcmath \
         xsl \
         gettext \
-        opcache \
         pdo \
         pdo_mysql \
         pdo_pgsql \
@@ -63,9 +67,9 @@ RUN set -eux; \
   echo 'yes,yes' | pecl install redis; \
   docker-php-ext-enable redis; \
 	cd /tmp; \
-	curl -L -O https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_amd64.deb; \
-  dpkg -i wkhtmltox_0.12.6.1-2.bullseye_amd64.deb; \
-  rm -rf wkhtmltox_0.12.6.1-2.bullseye_amd64.deb; \
+	curl -L -O https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb; \
+  dpkg -i wkhtmltox_0.12.6.1-3.bookworm_amd64.deb; \
+  rm -rf wkhtmltox_0.12.6.1-3.bookworm_amd64.deb; \
 	wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip ; \
 	wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-sdk-linuxx64.zip \
     ;\

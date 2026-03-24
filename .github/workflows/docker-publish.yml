@@ -3,7 +3,7 @@ name: Docker
 on:
   push:
     branches:
-      - 8.2.x
+      - 8.5.x-wk
 
 jobs:
   push:
@@ -23,8 +23,8 @@ jobs:
       - name: Build and push the images
         run: |
           VERSION=${{ matrix.image-variant }}
-          PHP_SHORT_VERSION=8.2
-          PHP_VERSION=8.2.29
+          PHP_SHORT_VERSION=8.5
+          PHP_VERSION=8.5.4
 
           tmpName="image-$RANDOM"
           cp -r fonts $VERSION/
@@ -37,5 +37,5 @@ jobs:
 
           docker tag $tmpName $IMAGE_ID:${VERSION}-$PHP_VERSION
           docker push $IMAGE_ID:${VERSION}-$PHP_VERSION
-          docker tag $tmpName $IMAGE_ID:${VERSION}-$PHP_SHORT_VERSION
-          docker push $IMAGE_ID:${VERSION}-$PHP_SHORT_VERSION
+          docker tag $tmpName $IMAGE_ID:${VERSION}-wk-$PHP_SHORT_VERSION
+          docker push $IMAGE_ID:${VERSION}-wk-$PHP_SHORT_VERSION
