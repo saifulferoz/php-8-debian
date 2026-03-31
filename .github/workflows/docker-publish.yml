@@ -3,11 +3,11 @@ name: Docker
 on:
   push:
     branches:
-      - main
+      - feature/*
 
 jobs:
   push:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, X64]
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +24,7 @@ jobs:
         run: |
           VERSION=${{ matrix.image-variant }}
           PHP_SHORT_VERSION=8.5
-          PHP_VERSION=8.5.0
+          PHP_VERSION=8.5.4
 
           tmpName="image-$RANDOM"
           docker build $VERSION --file $VERSION/Dockerfile --tag $tmpName --build-arg PHP_VERSION=$PHP_VERSION
@@ -35,12 +35,12 @@ jobs:
           IMAGE_ID=${{ secrets.DOCKER_REGISTRY_URL }}/${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
 
           docker tag $tmpName $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          # docker push $IMAGE_ID:$VERSION
           docker tag $tmpName $IMAGE_ID:${VERSION}-$PHP_VERSION
-          docker push $IMAGE_ID:${VERSION}-$PHP_VERSION
+          # docker push $IMAGE_ID:${VERSION}-$PHP_VERSION
           docker tag $tmpName $IMAGE_ID:${VERSION}-$PHP_SHORT_VERSION
-          docker push $IMAGE_ID:${VERSION}-$PHP_SHORT_VERSION
+          # docker push $IMAGE_ID:${VERSION}-$PHP_SHORT_VERSION
           if [ "$VERSION" == "fpm" ]; then 
             docker tag $tmpName $IMAGE_ID:latest
-            docker push $IMAGE_ID:latest
+            # docker push $IMAGE_ID:latest
           fi
