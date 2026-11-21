@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  PHP_VERSION: 8.5.12
+  PHP_VERSION: 8.5.13
   PHP_SHORT_VERSION: '8.5'
 
 jobs:
